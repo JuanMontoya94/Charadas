@@ -1,1 +1,893 @@
 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Charadas Party - Juego Multijugador</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: radial-gradient(circle at top left, #1e1b4b, #0f172a 60%, #020617);
+      color: #f8fafc;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .glass-card {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-push {
+      transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.1s;
+    }
+    .btn-push:active {
+      transform: scale(0.95);
+    }
+
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.9) translateY(10px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .animate-pop {
+      animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes pulseUrgent {
+      0%, 100% { transform: scale(1); color: #ef4444; }
+      50% { transform: scale(1.08); color: #fca5a5; }
+    }
+    .timer-urgent {
+      animation: pulseUrgent 0.8s infinite;
+    }
+
+    @keyframes floatPenalty {
+      0% { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-35px) scale(1.2); }
+    }
+    .penalty-badge {
+      animation: floatPenalty 0.9s ease-out forwards;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); }
+    ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.5); border-radius: 99px; }
+  </style>
+</head>
+<body class="flex flex-col items-center justify-between p-4 sm:p-6">
+
+  <!-- Header -->
+  <header class="w-full max-w-2xl flex items-center justify-between mb-4">
+    <div class="flex items-center gap-2.5">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-xl shadow-lg shadow-indigo-500/30">
+        🎭
+      </div>
+      <div>
+        <h1 class="text-xl sm:text-2xl font-black tracking-tight bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+          CHARADAS
+        </h1>
+        <p class="text-[11px] text-slate-400 font-medium tracking-wider uppercase">Edición Fiesta</p>
+      </div>
+    </div>
+    <button id="btn-sound" onclick="toggleSound()" class="glass-card px-3 py-2 rounded-xl text-sm font-semibold text-slate-300 hover:text-white flex items-center gap-1.5" title="Activar/Desactivar sonido">
+      <span id="sound-icon">🔊</span>
+      <span class="hidden sm:inline" id="sound-label">Sonido</span>
+    </button>
+  </header>
+
+  <!-- Main Container -->
+  <main class="w-full max-w-2xl flex-1 flex flex-col justify-center">
+
+    <!-- ==================== PANTALLA 1: CONFIGURACIÓN ==================== -->
+    <section id="screen-setup" class="glass-card rounded-3xl p-5 sm:p-8 shadow-2xl animate-pop space-y-6">
+      <div>
+        <h2 class="text-2xl font-extrabold text-white">Configura la partida</h2>
+        <p class="text-sm text-slate-400">Personaliza equipos, tiempo, rondas y temáticas.</p>
+      </div>
+
+      <!-- Número de Equipos y Nombres -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <label class="text-sm font-bold uppercase tracking-wider text-indigo-300">1. Equipos</label>
+          <div class="flex gap-1.5 bg-slate-900/80 p-1 rounded-xl border border-slate-700/60" id="team-count-selector">
+            <button type="button" onclick="setTeamCount(2)" data-count="2" class="team-cnt-btn px-3 py-1 rounded-lg text-sm font-bold bg-indigo-600 text-white">2</button>
+            <button type="button" onclick="setTeamCount(3)" data-count="3" class="team-cnt-btn px-3 py-1 rounded-lg text-sm font-bold text-slate-400 hover:text-white">3</button>
+            <button type="button" onclick="setTeamCount(4)" data-count="4" class="team-cnt-btn px-3 py-1 rounded-lg text-sm font-bold text-slate-400 hover:text-white">4</button>
+            <button type="button" onclick="setTeamCount(5)" data-count="5" class="team-cnt-btn px-3 py-1 rounded-lg text-sm font-bold text-slate-400 hover:text-white">5</button>
+            <button type="button" onclick="setTeamCount(6)" data-count="6" class="team-cnt-btn px-3 py-1 rounded-lg text-sm font-bold text-slate-400 hover:text-white">6</button>
+          </div>
+        </div>
+
+        <div id="team-names-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <!-- Inputs dinámicos -->
+        </div>
+      </div>
+
+      <!-- Rondas y Tiempo -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="space-y-2">
+          <label class="text-sm font-bold uppercase tracking-wider text-indigo-300 block">2. Rondas por equipo</label>
+          <div class="grid grid-cols-4 gap-2 bg-slate-900/80 p-1.5 rounded-xl border border-slate-700/60" id="rounds-selector">
+            <button type="button" onclick="setRounds(1)" data-val="1" class="round-btn py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-white">1</button>
+            <button type="button" onclick="setRounds(2)" data-val="2" class="round-btn py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-white">2</button>
+            <button type="button" onclick="setRounds(3)" data-val="3" class="round-btn py-2 rounded-lg text-sm font-bold bg-indigo-600 text-white">3</button>
+            <button type="button" onclick="setRounds(5)" data-val="5" class="round-btn py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-white">5</button>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-sm font-bold uppercase tracking-wider text-indigo-300 block">3. Tiempo por turno</label>
+          <div class="grid grid-cols-3 gap-2 bg-slate-900/80 p-1.5 rounded-xl border border-slate-700/60" id="time-selector">
+            <button type="button" onclick="setTime(60)" data-val="60" class="time-btn py-2 rounded-lg text-sm font-bold bg-indigo-600 text-white">1 min</button>
+            <button type="button" onclick="setTime(120)" data-val="120" class="time-btn py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-white">2 min</button>
+            <button type="button" onclick="setTime(180)" data-val="180" class="time-btn py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-white">3 min</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Temáticas -->
+      <div class="space-y-2.5">
+        <div class="flex items-center justify-between">
+          <label class="text-sm font-bold uppercase tracking-wider text-indigo-300">4. Temáticas (elige una o varias)</label>
+          <button type="button" onclick="toggleAllCategories()" class="text-xs font-semibold text-pink-400 hover:text-pink-300 underline">
+            Seleccionar todas
+          </button>
+        </div>
+        <div id="categories-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+          <!-- Categorías dinámicas -->
+        </div>
+      </div>
+
+      <!-- Reglas rápidas -->
+      <div class="bg-slate-900/60 border border-slate-700/50 rounded-2xl p-3.5 text-xs text-slate-300 space-y-1">
+        <p class="font-bold text-white mb-1">📋 Dinámica de juego:</p>
+        <p>• <span class="text-emerald-400 font-bold">Verde (Adivinó):</span> +1 punto y pasa a la siguiente palabra.</p>
+        <p>• <span class="text-amber-400 font-bold">Amarillo (Pasar):</span> Cambia la palabra, pero resta <span class="text-amber-300 font-bold">-20 segundos</span>.</p>
+        <p>• <span class="text-rose-400 font-bold">Rojo (Falta):</span> Si hablan o incumplen normas, pierden la palabra (0 pts).</p>
+      </div>
+
+      <button onclick="startGame()" class="btn-push w-full py-4 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 font-black text-lg text-white shadow-xl shadow-indigo-500/25 hover:brightness-110">
+        ¡COMENZAR PARTIDA! 🚀
+      </button>
+    </section>
+
+
+    <!-- ==================== PANTALLA 2: PREPARACIÓN DE TURNO ==================== -->
+    <section id="screen-ready" class="hidden glass-card rounded-3xl p-6 sm:p-10 shadow-2xl animate-pop text-center space-y-6">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-bold uppercase tracking-widest">
+        Ronda <span id="ready-round-num">1</span> de <span id="ready-total-rounds">3</span>
+      </div>
+
+      <div class="space-y-2">
+        <p class="text-sm text-slate-400 font-medium">Turno de adivinar para:</p>
+        <h2 id="ready-team-name" class="text-3xl sm:text-5xl font-black text-white tracking-tight">Equipo 1</h2>
+      </div>
+
+      <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 sm:p-5 max-w-md mx-auto space-y-2">
+        <div class="text-3xl">👀🚫</div>
+        <p class="text-sm sm:text-base font-bold text-amber-200">
+          ¡ATENCIÓN! El teléfono debe mostrarlo quien actúa o el equipo rival (<span id="ready-rival-team" class="underline text-white">Equipo 2</span>).
+        </p>
+        <p class="text-xs text-amber-200/80">
+          Quienes van a adivinar <strong>NO</strong> deben mirar la pantalla.
+        </p>
+      </div>
+
+      <!-- Mini marcador actual -->
+      <div id="ready-scoreboard" class="flex flex-wrap justify-center gap-2 pt-2">
+        <!-- Pills de puntaje -->
+      </div>
+
+      <button onclick="beginTurn()" class="btn-push w-full max-w-md mx-auto py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 font-black text-lg text-slate-950 shadow-xl shadow-emerald-500/25 hover:brightness-110">
+        MOSTRAR PALABRA Y ARRANCAR ⏱️
+      </button>
+    </section>
+
+
+    <!-- ==================== PANTALLA 3: JUEGO ACTIVO ==================== -->
+    <section id="screen-play" class="hidden glass-card rounded-3xl p-5 sm:p-8 shadow-2xl animate-pop flex flex-col justify-between space-y-5">
+      <!-- Top Bar: Equipo, Ronda y Cronómetro -->
+      <div class="flex items-center justify-between border-b border-slate-700/60 pb-4">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-indigo-400 block">
+            Ronda <span id="play-round-num">1</span>/<span id="play-total-rounds">3</span> • Adivina:
+          </span>
+          <h3 id="play-team-name" class="text-xl sm:text-2xl font-black text-white truncate max-w-[180px] sm:max-w-[260px]">
+            Equipo 1
+          </h3>
+        </div>
+
+        <div class="relative flex flex-col items-end">
+          <div id="penalty-container" class="absolute -top-6 right-2 pointer-events-none"></div>
+          <div id="play-timer" class="text-3xl sm:text-4xl font-black tabular-nums tracking-tight text-white bg-slate-900/90 px-4 py-1.5 rounded-2xl border border-slate-700">
+            01:00
+          </div>
+          <span class="text-[11px] font-bold text-emerald-400 mt-1">
+            Puntos en turno: <span id="play-turn-score" class="text-sm">0</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Tarjeta de la Palabra -->
+      <div class="my-2 py-8 sm:py-12 px-4 rounded-3xl bg-gradient-to-b from-slate-800/90 to-slate-900/90 border-2 border-indigo-500/40 shadow-inner flex flex-col items-center justify-center text-center min-h-[210px] relative overflow-hidden">
+        <span id="play-category-badge" class="px-3.5 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-bold uppercase tracking-wider mb-4">
+          🎬 Películas
+        </span>
+
+        <h2 id="play-word" class="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight break-words max-w-full px-2">
+          El Rey León
+        </h2>
+
+        <p class="text-[11px] text-slate-400 mt-5">
+          Mostrar pantalla al equipo contrario / actor
+        </p>
+      </div>
+
+      <!-- Botones de Acción (Verde, Amarillo, Rojo) -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+        <!-- VERDE: Adivinó -->
+        <button onclick="handleGuess()" class="btn-push py-4 sm:py-5 px-4 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black flex flex-col items-center justify-center shadow-lg shadow-emerald-500/25">
+          <span class="text-2xl mb-0.5">✅</span>
+          <span class="text-base sm:text-lg leading-none">ADIVINÓ</span>
+          <span class="text-[11px] font-bold opacity-80 mt-1">+1 Punto</span>
+        </button>
+
+        <!-- AMARILLO: Pasar -->
+        <button onclick="handleSkip()" class="btn-push py-4 sm:py-5 px-4 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black flex flex-col items-center justify-center shadow-lg shadow-amber-400/25">
+          <span class="text-2xl mb-0.5">⏭️</span>
+          <span class="text-base sm:text-lg leading-none">PASAR</span>
+          <span class="text-[11px] font-bold opacity-80 mt-1">-20 Segundos</span>
+        </button>
+
+        <!-- ROJO: Incumple normas -->
+        <button onclick="handleFoul()" class="btn-push py-4 sm:py-5 px-4 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white font-black flex flex-col items-center justify-center shadow-lg shadow-rose-600/25">
+          <span class="text-2xl mb-0.5">🚫</span>
+          <span class="text-base sm:text-lg leading-none">FALTA</span>
+          <span class="text-[11px] font-bold opacity-85 mt-1">Incumple norma</span>
+        </button>
+      </div>
+    </section>
+
+
+    <!-- ==================== PANTALLA 4: RESUMEN DE TURNO ==================== -->
+    <section id="screen-turn-end" class="hidden glass-card rounded-3xl p-6 sm:p-8 shadow-2xl animate-pop text-center space-y-6">
+      <div class="space-y-1">
+        <div class="text-4xl mb-2">⏰</div>
+        <h2 class="text-3xl font-black text-white">¡Tiempo agotado!</h2>
+        <p class="text-slate-400 text-sm">
+          Turno finalizado para <strong id="end-team-name" class="text-indigo-300">Equipo 1</strong>
+        </p>
+      </div>
+
+      <div class="bg-slate-900/80 border border-slate-700/70 rounded-2xl p-5 max-w-sm mx-auto">
+        <span class="text-xs uppercase tracking-wider text-slate-400 font-bold">Puntos conseguidos en este turno</span>
+        <div id="end-turn-points" class="text-5xl font-black text-emerald-400 mt-1">+0</div>
+      </div>
+
+      <div class="space-y-2 text-left">
+        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 px-1">Tabla de posiciones</h4>
+        <div id="end-turn-leaderboard" class="space-y-2">
+          <!-- Filas de equipos -->
+        </div>
+      </div>
+
+      <button onclick="nextTurn()" class="btn-push w-full py-4 rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 font-black text-lg text-white shadow-xl shadow-indigo-500/25 hover:brightness-110">
+        SIGUIENTE TURNO ➡️
+      </button>
+    </section>
+
+
+    <!-- ==================== PANTALLA 5: PODIO FINAL ==================== -->
+    <section id="screen-gameover" class="hidden glass-card rounded-3xl p-6 sm:p-8 shadow-2xl animate-pop text-center space-y-6">
+      <div class="space-y-2">
+        <div class="text-5xl">🏆</div>
+        <h2 class="text-3xl sm:text-4xl font-black bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 bg-clip-text text-transparent">
+          ¡FIN DEL JUEGO!
+        </h2>
+        <p id="winner-announcement" class="text-base sm:text-lg font-bold text-white">
+          ¡Ganador: Equipo 1!
+        </p>
+      </div>
+
+      <div id="final-leaderboard" class="space-y-2.5 text-left">
+        <!-- Podio completo -->
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+        <button onclick="playAgainSameSettings()" class="btn-push py-3.5 px-4 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-base shadow-lg">
+          🔄 Revancha (Mismos equipos)
+        </button>
+        <button onclick="resetToSetup()" class="btn-push py-3.5 px-4 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-base border border-slate-600">
+          ⚙️ Nueva Configuración
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="w-full max-w-2xl text-center mt-6 text-xs text-slate-500">
+    Charadas Party • Listo para jugar en grupo
+  </footer>
+
+  <script>
+    // ==================== BANCO DE PALABRAS POR TEMÁTICA ====================
+    const WORD_BANK = {
+      deportes: {
+        label: "Deportes",
+        icon: "⚽",
+        words: [
+          "Fútbol", "Baloncesto", "Tenis", "Natación", "Boxeo", "Ciclismo", "Voleibol", "Golf",
+          "Surf", "Esgrima", "Karate", "Béisbol", "Patinaje artístico", "Halterofilia", "Tiro con arco",
+          "Ping Pong", "Bolos", "Escalada", "Paracaidismo", "Automovilismo", "Lucha libre", "Gimnasia",
+          "Remo", "Buceo", "Rugby", "Hockey sobre hielo", "Atletismo", "Salto con pértiga", "Skateboarding",
+          "Ajedrez", "Billar", "Equitación", "Taekwondo", "Maratón", "Lanzamiento de jabalina", "Waterpolo"
+        ]
+      },
+      peliculas: {
+        label: "Películas",
+        icon: "🎬",
+        words: [
+          "Titanic", "El Rey León", "Harry Potter", "Star Wars", "Jurassic Park", "Toy Story",
+          "Matrix", "Avatar", "El Padrino", "Forrest Gump", "Spider-Man", "Frozen", "Shrek",
+          "Los Vengadores", "Piratas del Caribe", "Volver al Futuro", "Buscando a Nemo", "Rocky",
+          "E.T. el Extraterrestre", "Coco", "Intensamente", "El Señor de los Anillos", "Batman",
+          "Tiburón", "Mi Pobre Angelito", "Los Increíbles", "La La Land", "Rápidos y Furiosos",
+          "Monsters Inc.", "El Exorcista", "Indiana Jones", "Gladiador", "Up: Una aventura de altura",
+          "Alicia en el País de las Maravillas", "King Kong", "Barbie"
+        ]
+      },
+      canciones: {
+        label: "Canciones",
+        icon: "🎵",
+        words: [
+          "Despacito", "Thriller", "La Macarena", "Bohemian Rhapsody", "Waka Waka", "Gasolina",
+          "Billie Jean", "La Bicicleta", "Vivir Mi Vida", "Gangnam Style", "Shape of You",
+          "El Taxi", "La Bamba", "Aserejé", "Danza Kuduro", "Bailando", "Tusa", "Bichota",
+          "Feliz Cumpleaños", "La Cucaracha", "Single Ladies", "Baby Shark", "YMCA",
+          "We Will Rock You", "Livin' la Vida Loca", "Sopa de Caracol", "El Meneaito",
+          "Pedro Navaja", "La Camisa Negra", "Rayando el Sol", "De Música Ligera", "Pepas"
+        ]
+      },
+      profesiones: {
+        label: "Profesiones",
+        icon: "👷",
+        words: [
+          "Bombero", "Astronauta", "Cirujano", "Chef", "Piloto de avión", "Dentista", "Policía",
+          "Fotógrafo", "Carpintero", "Mago", "Veterinario", "Arquitecto", "Peluquero", "Mecánico",
+          "Profesor", "Director de orquesta", "Juez", "Sastre", "Pintor", "Salvavidas",
+          "Arqueólogo", "Periodista", "Electricista", "Panadero", "Payaso", "Científico",
+          "Agricultor", "Cartero", "Mesero", "DJ", "Buzo", "Árbitro de fútbol", "Cantante de ópera",
+          "Escultor", "Programador", "Entrenador personal"
+        ]
+      },
+      animales: {
+        label: "Animales",
+        icon: "🦁",
+        words: [
+          "Canguro", "Pingüino", "Elefante", "Jirafa", "Camaleón", "Pulpo", "Gorila", "Flamenco",
+          "Cocodrilo", "Murciélago", "Serpiente", "Avestruz", "Perezoso", "Delfín", "Tiburón",
+          "Abeja", "Araña", "Rana", "Pavo real", "Cangrejo", "Caballo", "Perro salchicha",
+          "Gato", "Búho", "Castor", "Hipopótamo", "Rinoceronte", "Zorro", "Koala", "Tortuga",
+          "Mosquito", "Gallina", "Loro", "Medusa", "Escorpión", "Ballena"
+        ]
+      },
+      superheroes: {
+        label: "Personajes",
+        icon: "🦸",
+        words: [
+          "Superman", "Wonder Woman", "Iron Man", "Hulk", "Thor", "Capitán América", "Flash",
+          "Aquaman", "Wolverine", "Deadpool", "Darth Vader", "Goku", "Pikachu", "Mario Bros",
+          "El Chavo del 8", "Chapulín Colorado", "Sherlock Holmes", "Drácula", "Frankenstein",
+          "Tarzán", "Zorro", "Robin Hood", "Cleopatra", "Albert Einstein", "Michael Jackson",
+          "Freddie Mercury", "Charlie Chaplin", "Elvis Presley", "Frida Kahlo", "Bob Esponja",
+          "Homero Simpson", "Shrek", "Elsa de Frozen", "Jack Sparrow"
+        ]
+      },
+      acciones: {
+        label: "Acciones",
+        icon: "🏃",
+        words: [
+          "Cambiar un pañal", "Planchar ropa", "Sacarse una selfie", "Comer espagueti",
+          "Manejar motocicleta", "Pescar un pez grande", "Hacer yoga", "Caminar en la luna",
+          "Apagar un incendio", "Ordeñar una vaca", "Subir una montaña", "Hacer malabares",
+          "Pintarse las uñas", "Afeitarse", "Cambiar una llanta", "Hacer pizza", "Bañar un perro",
+          "Cortar cebolla llorando", "Caminar sobre hielo", "Tomar café caliente", "Inflar un globo",
+          "Tejer una bufanda", "Hacer paracaidismo", "Pisar popó", "Bailar salsa", "Hacer pesas",
+          "Tocar la batería", "Dormirse en clase", "Cazar mosquitos", "Subirse a una montaña rusa"
+        ]
+      },
+      objetos: {
+        label: "Objetos",
+        icon: "🎸",
+        words: [
+          "Sacacorchos", "Paraguas", "Aspiradora", "Licuadora", "Telescopio", "Microscopio",
+          "Guitarra eléctrica", "Acordeón", "Secador de pelo", "Tostadora", "Escalera",
+          "Martillo", "Taladro", "Cortacésped", "Silla de ruedas", "Patineta", "Brújula",
+          "Reloj de arena", "Extintor", "Bumerán", "Resortera", "Binoculares", "Termómetro",
+          "Estetoscopio", "Sartén", "Rodillo de cocina", "Plancha", "Lavadora", "Cámara fotográfica",
+          "Antifaz", "Alcancia", "Piñata"
+        ]
+      },
+      paises: {
+        label: "Países y Lugares",
+        icon: "🌍",
+        words: [
+          "Egipto", "Francia", "Japón", "Brasil", "México", "Colombia", "Italia", "Estados Unidos",
+          "Australia", "China", "India", "España", "Argentina", "Rusia", "Hawái", "Polo Norte",
+          "Desierto del Sahara", "Selva Amazónica", "Torre Eiffel", "Estatua de la Libertad",
+          "Muralla China", "Pirámides de Egipto", "Playa nudista", "Hospital", "Gimnasio",
+          "Cine", "Aeropuerto", "Supermercado", "Circo", "Zoológico", "Cementerio", "Biblioteca"
+        ]
+      }
+    };
+
+    // ==================== ESTADO DEL JUEGO ====================
+    let config = {
+      teamCount: 2,
+      teamNames: ["Equipo 1", "Equipo 2", "Equipo 3", "Equipo 4", "Equipo 5", "Equipo 6"],
+      rounds: 3,
+      turnSeconds: 60,
+      selectedCategories: Object.keys(WORD_BANK)
+    };
+
+    let gameState = {
+      teams: [], // { name, score }
+      currentRound: 1,
+      currentTeamIndex: 0,
+      timeLeft: 60,
+      turnScore: 0,
+      timerInterval: null,
+      wordPool: [],
+      usedWords: new Set(),
+      currentWordObj: null,
+      soundEnabled: true
+    };
+
+    // ==================== AUDIO WEB API (EFECTOS DE SONIDO) ====================
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playTone(type) {
+      if (!gameState.soundEnabled) return;
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      if (type === 'point') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523.25, now); // C5
+        osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+        osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+        osc.start(now);
+        osc.stop(now + 0.35);
+      } else if (type === 'skip') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(400, now);
+        osc.frequency.linearRampToValueAtTime(260, now + 0.22);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+        osc.start(now);
+        osc.stop(now + 0.25);
+      } else if (type === 'foul') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(160, now);
+        osc.frequency.linearRampToValueAtTime(110, now + 0.35);
+        gain.gain.setValueAtTime(0.22, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.38);
+        osc.start(now);
+        osc.stop(now + 0.38);
+      } else if (type === 'tick') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, now);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+        osc.start(now);
+        osc.stop(now + 0.07);
+      } else if (type === 'timeup') {
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(300, now);
+        osc.frequency.setValueAtTime(220, now + 0.2);
+        osc.frequency.setValueAtTime(150, now + 0.4);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.7);
+        osc.start(now);
+        osc.stop(now + 0.7);
+      }
+    }
+
+    function toggleSound() {
+      gameState.soundEnabled = !gameState.soundEnabled;
+      document.getElementById('sound-icon').textContent = gameState.soundEnabled ? '🔊' : '🔇';
+      document.getElementById('sound-label').textContent = gameState.soundEnabled ? 'Sonido' : 'Silencio';
+    }
+
+    // ==================== INICIALIZACIÓN DE UI CONFIG ====================
+    function initSetupUI() {
+      renderTeamInputs();
+      renderCategories();
+    }
+
+    function setTeamCount(count) {
+      config.teamCount = count;
+      document.querySelectorAll('.team-cnt-btn').forEach(btn => {
+        const active = parseInt(btn.dataset.count) === count;
+        btn.className = `team-cnt-btn px-3 py-1 rounded-lg text-sm font-bold transition ${
+          active ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
+        }`;
+      });
+      renderTeamInputs();
+    }
+
+    function renderTeamInputs() {
+      const container = document.getElementById('team-names-container');
+      container.innerHTML = '';
+      const colors = ['border-indigo-500/50', 'border-pink-500/50', 'border-emerald-500/50', 'border-amber-500/50', 'border-cyan-500/50', 'border-purple-500/50'];
+      const badges = ['🔵', '🩷', '🟢', '🟡', '🩵', '🟣'];
+
+      for (let i = 0; i < config.teamCount; i++) {
+        const div = document.createElement('div');
+        div.className = `flex items-center gap-2 bg-slate-900/70 border ${colors[i]} rounded-xl px-3 py-2`;
+        div.innerHTML = `
+          <span class="text-sm">${badges[i]}</span>
+          <input
+            type="text"
+            value="${config.teamNames[i]}"
+            placeholder="Nombre Equipo ${i + 1}"
+            oninput="config.teamNames[${i}] = this.value"
+            class="bg-transparent text-sm font-semibold text-white placeholder-slate-500 focus:outline-none w-full"
+            maxlength="22"
+          />
+        `;
+        container.appendChild(div);
+      }
+    }
+
+    function setRounds(val) {
+      config.rounds = val;
+      document.querySelectorAll('.round-btn').forEach(btn => {
+        const active = parseInt(btn.dataset.val) === val;
+        btn.className = `round-btn py-2 rounded-lg text-sm font-bold transition ${
+          active ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
+        }`;
+      });
+    }
+
+    function setTime(seconds) {
+      config.turnSeconds = seconds;
+      document.querySelectorAll('.time-btn').forEach(btn => {
+        const active = parseInt(btn.dataset.val) === seconds;
+        btn.className = `time-btn py-2 rounded-lg text-sm font-bold transition ${
+          active ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
+        }`;
+      });
+    }
+
+    function renderCategories() {
+      const grid = document.getElementById('categories-grid');
+      grid.innerHTML = '';
+
+      Object.entries(WORD_BANK).forEach(([key, cat]) => {
+        const isSelected = config.selectedCategories.includes(key);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.onclick = () => toggleCategory(key);
+        btn.className = `p-3 rounded-xl border text-left transition flex items-center gap-2.5 ${
+          isSelected
+            ? 'bg-indigo-600/30 border-indigo-400 text-white shadow-md shadow-indigo-500/10'
+            : 'bg-slate-900/50 border-slate-800 text-slate-400 hover:border-slate-700'
+        }`;
+        btn.innerHTML = `
+          <span class="text-xl">${cat.icon}</span>
+          <div class="overflow-hidden">
+            <div class="text-xs sm:text-sm font-bold truncate">${cat.label}</div>
+            <div class="text-[10px] opacity-70">${cat.words.length} palabras</div>
+          </div>
+        `;
+        grid.appendChild(btn);
+      });
+    }
+
+    function toggleCategory(key) {
+      if (config.selectedCategories.includes(key)) {
+        if (config.selectedCategories.length === 1) return; // Al menos 1 categoría
+        config.selectedCategories = config.selectedCategories.filter(c => c !== key);
+      } else {
+        config.selectedCategories.push(key);
+      }
+      renderCategories();
+    }
+
+    function toggleAllCategories() {
+      const allKeys = Object.keys(WORD_BANK);
+      if (config.selectedCategories.length === allKeys.length) {
+        config.selectedCategories = [allKeys[0]];
+      } else {
+        config.selectedCategories = [...allKeys];
+      }
+      renderCategories();
+    }
+
+    // ==================== NAVEGACIÓN DE PANTALLAS ====================
+    function showScreen(screenId) {
+      ['screen-setup', 'screen-ready', 'screen-play', 'screen-turn-end', 'screen-gameover'].forEach(id => {
+        document.getElementById(id).classList.add('hidden');
+      });
+      document.getElementById(screenId).classList.remove('hidden');
+    }
+
+    // ==================== LÓGICA DE PARTIDA ====================
+    function buildWordPool() {
+      let pool = [];
+      config.selectedCategories.forEach(catKey => {
+        const cat = WORD_BANK[catKey];
+        cat.words.forEach(w => {
+          pool.push({ word: w, category: cat.label, icon: cat.icon });
+        });
+      });
+      // Mezclar Fisher-Yates
+      for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+      return pool;
+    }
+
+    function getNextWord() {
+      if (gameState.wordPool.length === 0) {
+        gameState.wordPool = buildWordPool();
+      }
+      return gameState.wordPool.pop();
+    }
+
+    function startGame() {
+      // Construir equipos con nombres personalizados limpios
+      gameState.teams = [];
+      for (let i = 0; i < config.teamCount; i++) {
+        const rawName = (config.teamNames[i] || '').trim();
+        gameState.teams.push({
+          name: rawName || `Equipo ${i + 1}`,
+          score: 0
+        });
+      }
+
+      gameState.currentRound = 1;
+      gameState.currentTeamIndex = 0;
+      gameState.wordPool = buildWordPool();
+
+      prepareTurnScreen();
+    }
+
+    function prepareTurnScreen() {
+      const currentTeam = gameState.teams[gameState.currentTeamIndex];
+      const rivalIndex = (gameState.currentTeamIndex + 1) % gameState.teams.length;
+      const rivalTeam = gameState.teams[rivalIndex];
+
+      document.getElementById('ready-round-num').textContent = gameState.currentRound;
+      document.getElementById('ready-total-rounds').textContent = config.rounds;
+      document.getElementById('ready-team-name').textContent = currentTeam.name;
+      document.getElementById('ready-rival-team').textContent = rivalTeam.name;
+
+      // Render mini marcador
+      const sb = document.getElementById('ready-scoreboard');
+      sb.innerHTML = gameState.teams.map((t, idx) => `
+        <div class="px-3 py-1.5 rounded-xl text-xs font-bold border ${
+          idx === gameState.currentTeamIndex
+            ? 'bg-indigo-600/40 border-indigo-400 text-white'
+            : 'bg-slate-900/60 border-slate-700/60 text-slate-300'
+        }">
+          ${t.name}: <span class="text-emerald-400">${t.score} pts</span>
+        </div>
+      `).join('');
+
+      showScreen('screen-ready');
+    }
+
+    function beginTurn() {
+      const currentTeam = gameState.teams[gameState.currentTeamIndex];
+      gameState.timeLeft = config.turnSeconds;
+      gameState.turnScore = 0;
+
+      document.getElementById('play-round-num').textContent = gameState.currentRound;
+      document.getElementById('play-total-rounds').textContent = config.rounds;
+      document.getElementById('play-team-name').textContent = currentTeam.name;
+      document.getElementById('play-turn-score').textContent = '0';
+
+      updateTimerDisplay();
+      displayNewWord();
+      showScreen('screen-play');
+
+      clearInterval(gameState.timerInterval);
+      gameState.timerInterval = setInterval(() => {
+        gameState.timeLeft--;
+        if (gameState.timeLeft <= 10 && gameState.timeLeft > 0) {
+          playTone('tick');
+        }
+        if (gameState.timeLeft <= 0) {
+          gameState.timeLeft = 0;
+          updateTimerDisplay();
+          endTurn();
+        } else {
+          updateTimerDisplay();
+        }
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      const mins = Math.floor(gameState.timeLeft / 60);
+      const secs = gameState.timeLeft % 60;
+      const formatted = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      const timerEl = document.getElementById('play-timer');
+      timerEl.textContent = formatted;
+
+      if (gameState.timeLeft <= 10) {
+        timerEl.classList.add('timer-urgent', 'border-rose-500');
+      } else {
+        timerEl.classList.remove('timer-urgent', 'border-rose-500');
+      }
+    }
+
+    function displayNewWord() {
+      const item = getNextWord();
+      gameState.currentWordObj = item;
+
+      const wordEl = document.getElementById('play-word');
+      const badgeEl = document.getElementById('play-category-badge');
+
+      wordEl.classList.remove('animate-pop');
+      void wordEl.offsetWidth; // trigger reflow
+      wordEl.classList.add('animate-pop');
+
+      badgeEl.textContent = `${item.icon} ${item.category}`;
+      wordEl.textContent = item.word;
+    }
+
+    // ==================== BOTONES DE ACCIÓN EN TURNO ====================
+    // 1. VERDE: Adivinan (+1 punto)
+    function handleGuess() {
+      playTone('point');
+      gameState.turnScore++;
+      gameState.teams[gameState.currentTeamIndex].score++;
+      document.getElementById('play-turn-score').textContent = gameState.turnScore;
+      displayNewWord();
+    }
+
+    // 2. AMARILLO: Pasar (-20 segundos)
+    function handleSkip() {
+      playTone('skip');
+      showPenaltyBadge('-20s');
+      gameState.timeLeft = Math.max(0, gameState.timeLeft - 20);
+      updateTimerDisplay();
+
+      if (gameState.timeLeft <= 0) {
+        endTurn();
+      } else {
+        displayNewWord();
+      }
+    }
+
+    // 3. ROJO: Incumplen normas (0 puntos, siguiente palabra)
+    function handleFoul() {
+      playTone('foul');
+      showPenaltyBadge('¡FALTA!');
+      displayNewWord();
+    }
+
+    function showPenaltyBadge(text) {
+      const container = document.getElementById('penalty-container');
+      const badge = document.createElement('span');
+      badge.className = 'penalty-badge inline-block px-2.5 py-0.5 rounded-lg bg-rose-500 text-white font-black text-xs shadow-lg';
+      badge.textContent = text;
+      container.appendChild(badge);
+      setTimeout(() => badge.remove(), 900);
+    }
+
+    // ==================== FIN DE TURNO Y FIN DE JUEGO ====================
+    function endTurn() {
+      clearInterval(gameState.timerInterval);
+      playTone('timeup');
+
+      const currentTeam = gameState.teams[gameState.currentTeamIndex];
+      document.getElementById('end-team-name').textContent = currentTeam.name;
+      document.getElementById('end-turn-points').textContent = `+${gameState.turnScore}`;
+
+      renderLeaderboard('end-turn-leaderboard');
+      showScreen('screen-turn-end');
+    }
+
+    function nextTurn() {
+      gameState.currentTeamIndex++;
+
+      // Si ya jugaron todos los equipos en esta ronda
+      if (gameState.currentTeamIndex >= gameState.teams.length) {
+        gameState.currentTeamIndex = 0;
+        gameState.currentRound++;
+      }
+
+      // Verificar si se acabaron todas las rondas
+      if (gameState.currentRound > config.rounds) {
+        showGameOver();
+      } else {
+        prepareTurnScreen();
+      }
+    }
+
+    function renderLeaderboard(containerId) {
+      const container = document.getElementById(containerId);
+      const sorted = [...gameState.teams].sort((a, b) => b.score - a.score);
+
+      container.innerHTML = sorted.map((team, idx) => {
+        const medals = ['🥇', '🥈', '🥉'];
+        const medal = medals[idx] || `#${idx + 1}`;
+        const isTop = idx === 0;
+
+        return `
+          <div class="flex items-center justify-between p-3.5 rounded-2xl border ${
+            isTop
+              ? 'bg-gradient-to-r from-amber-500/20 to-yellow-500/10 border-amber-400/50'
+              : 'bg-slate-900/70 border-slate-800'
+          }">
+            <div class="flex items-center gap-3">
+              <span class="text-xl w-7 text-center font-bold">${medal}</span>
+              <span class="font-extrabold text-white text-base sm:text-lg">${team.name}</span>
+            </div>
+            <div class="px-3.5 py-1 rounded-xl bg-slate-950/70 font-black text-emerald-400 text-base sm:text-lg">
+              ${team.score} <span class="text-xs font-semibold text-slate-400">pts</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function showGameOver() {
+      const sorted = [...gameState.teams].sort((a, b) => b.score - a.score);
+      const topScore = sorted[0].score;
+      const winners = sorted.filter(t => t.score === topScore);
+
+      const announcement = document.getElementById('winner-announcement');
+      if (winners.length > 1) {
+        announcement.textContent = `¡Empate en el primer lugar: ${winners.map(w => w.name).join(' y ')}!`;
+      } else {
+        announcement.textContent = `¡Campeones: ${winners[0].name} con ${topScore} puntos!`;
+      }
+
+      renderLeaderboard('final-leaderboard');
+      showScreen('screen-gameover');
+
+      if (typeof confetti === 'function') {
+        confetti({ particleCount: 110, spread: 75, origin: { y: 0.6 } });
+      }
+    }
+
+    function playAgainSameSettings() {
+      gameState.teams.forEach(t => t.score = 0);
+      gameState.currentRound = 1;
+      gameState.currentTeamIndex = 0;
+      gameState.wordPool = buildWordPool();
+      prepareTurnScreen();
+    }
+
+    function resetToSetup() {
+      clearInterval(gameState.timerInterval);
+      showScreen('screen-setup');
+    }
+
+    // Iniciar
+    initSetupUI();
+  </script>
+</body>
+</html>
