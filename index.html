@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Charadas Party - Juego Multijugador</title>
+  <title>Charadas Fiesta - Juego Multijugador</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -58,7 +57,6 @@
       animation: floatPenalty 0.9s ease-out forwards;
     }
 
-    /* Custom Scrollbar */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); }
     ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.5); border-radius: 99px; }
@@ -66,7 +64,7 @@
 </head>
 <body class="flex flex-col items-center justify-between p-4 sm:p-6">
 
-  <!-- Header -->
+  <!-- Encabezado -->
   <header class="w-full max-w-2xl flex items-center justify-between mb-4">
     <div class="flex items-center gap-2.5">
       <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-xl shadow-lg shadow-indigo-500/30">
@@ -79,13 +77,13 @@
         <p class="text-[11px] text-slate-400 font-medium tracking-wider uppercase">Edición Fiesta</p>
       </div>
     </div>
-    <button id="btn-sound" onclick="toggleSound()" class="glass-card px-3 py-2 rounded-xl text-sm font-semibold text-slate-300 hover:text-white flex items-center gap-1.5" title="Activar/Desactivar sonido">
+    <button id="btn-sound" onclick="toggleSound()" class="glass-card px-3 py-2 rounded-xl text-sm font-semibold text-slate-300 hover:text-white flex items-center gap-1.5" title="Activar o desactivar sonido">
       <span id="sound-icon">🔊</span>
       <span class="hidden sm:inline" id="sound-label">Sonido</span>
     </button>
   </header>
 
-  <!-- Main Container -->
+  <!-- Contenedor Principal -->
   <main class="w-full max-w-2xl flex-1 flex flex-col justify-center">
 
     <!-- ==================== PANTALLA 1: CONFIGURACIÓN ==================== -->
@@ -109,7 +107,7 @@
         </div>
 
         <div id="team-names-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          <!-- Inputs dinámicos -->
+          <!-- Entradas dinámicas -->
         </div>
       </div>
 
@@ -185,7 +183,7 @@
 
       <!-- Mini marcador actual -->
       <div id="ready-scoreboard" class="flex flex-wrap justify-center gap-2 pt-2">
-        <!-- Pills de puntaje -->
+        <!-- Fichas de puntaje -->
       </div>
 
       <button onclick="beginTurn()" class="btn-push w-full max-w-md mx-auto py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 font-black text-lg text-slate-950 shadow-xl shadow-emerald-500/25 hover:brightness-110">
@@ -196,7 +194,7 @@
 
     <!-- ==================== PANTALLA 3: JUEGO ACTIVO ==================== -->
     <section id="screen-play" class="hidden glass-card rounded-3xl p-5 sm:p-8 shadow-2xl animate-pop flex flex-col justify-between space-y-5">
-      <!-- Top Bar: Equipo, Ronda y Cronómetro -->
+      <!-- Barra superior: Equipo, Ronda y Cronómetro -->
       <div class="flex items-center justify-between border-b border-slate-700/60 pb-4">
         <div>
           <span class="text-xs font-bold uppercase tracking-wider text-indigo-400 block">
@@ -229,7 +227,7 @@
         </h2>
 
         <p class="text-[11px] text-slate-400 mt-5">
-          Mostrar pantalla al equipo contrario / actor
+          Mostrar pantalla al equipo contrario o al actor
         </p>
       </div>
 
@@ -316,58 +314,73 @@
   </main>
 
   <footer class="w-full max-w-2xl text-center mt-6 text-xs text-slate-500">
-    Charadas Party • Listo para jugar en grupo
+    Charadas Fiesta • Listo para jugar en grupo
   </footer>
 
   <script>
-    // ==================== BANCO DE PALABRAS POR TEMÁTICA ====================
+    // ==================== BANCO DE PALABRAS POR TEMÁTICA (100% EN ESPAÑOL) ====================
     const WORD_BANK = {
       deportes: {
         label: "Deportes",
         icon: "⚽",
         words: [
           "Fútbol", "Baloncesto", "Tenis", "Natación", "Boxeo", "Ciclismo", "Voleibol", "Golf",
-          "Surf", "Esgrima", "Karate", "Béisbol", "Patinaje artístico", "Halterofilia", "Tiro con arco",
-          "Ping Pong", "Bolos", "Escalada", "Paracaidismo", "Automovilismo", "Lucha libre", "Gimnasia",
-          "Remo", "Buceo", "Rugby", "Hockey sobre hielo", "Atletismo", "Salto con pértiga", "Skateboarding",
-          "Ajedrez", "Billar", "Equitación", "Taekwondo", "Maratón", "Lanzamiento de jabalina", "Waterpolo"
+          "Surf", "Esgrima", "Karate", "Béisbol", "Patinaje artístico", "Levantamiento de pesas",
+          "Tiro con arco", "Tenis de mesa", "Bolos", "Escalada en roca", "Paracaidismo",
+          "Automovilismo", "Lucha libre", "Gimnasia rítmica", "Remo", "Buceo", "Rugby",
+          "Hockey sobre hielo", "Atletismo", "Salto con garrocha", "Monopatín", "Ajedrez",
+          "Billar", "Equitación", "Taekwondo", "Maratón", "Lanzamiento de jabalina", "Waterpolo",
+          "Patinaje de velocidad", "Esquí acuático", "Ciclismo de montaña", "Motocross",
+          "Lanzamiento de disco", "Salto largo", "Bádminton", "Clavados", "Vela", "Canotaje",
+          "Judo", "Patinaje sobre hielo", "Fútbol sala", "Triatlón"
         ]
       },
       peliculas: {
         label: "Películas",
         icon: "🎬",
         words: [
-          "Titanic", "El Rey León", "Harry Potter", "Star Wars", "Jurassic Park", "Toy Story",
-          "Matrix", "Avatar", "El Padrino", "Forrest Gump", "Spider-Man", "Frozen", "Shrek",
-          "Los Vengadores", "Piratas del Caribe", "Volver al Futuro", "Buscando a Nemo", "Rocky",
-          "E.T. el Extraterrestre", "Coco", "Intensamente", "El Señor de los Anillos", "Batman",
-          "Tiburón", "Mi Pobre Angelito", "Los Increíbles", "La La Land", "Rápidos y Furiosos",
-          "Monsters Inc.", "El Exorcista", "Indiana Jones", "Gladiador", "Up: Una aventura de altura",
-          "Alicia en el País de las Maravillas", "King Kong", "Barbie"
+          "Titanic", "El Rey León", "La Guerra de las Galaxias", "Parque Jurásico", "Buscando a Nemo",
+          "El Padrino", "Volver al Futuro", "Los Vengadores", "Piratas del Caribe", "Mi Pobre Angelito",
+          "Los Increíbles", "Rápidos y Furiosos", "El Exorcista", "Gladiador",
+          "Alicia en el País de las Maravillas", "Coco", "Intensamente", "El Señor de los Anillos",
+          "Tiburón", "La Sirenita", "La Bella y la Bestia", "Aladdín", "Blancanieves",
+          "Pinocho", "Dumbo", "Bambi", "Cenicienta", "El Libro de la Selva", "Encanto",
+          "La Era de Hielo", "Madagascar", "Mi Villano Favorito", "Mascotas", "El Gato con Botas",
+          "Enredados", "Valiente", "El Planeta de los Simios", "Misión Imposible", "Hombres de Negro",
+          "Cazafantasmas", "El Silencio de los Inocentes", "La Lista de Schindler", "El Sexto Sentido",
+          "Náufrago", "La Vida es Bella", "El Laberinto del Fauno", "Amores Perros",
+          "Relatos Salvajes", "El Secreto de sus Ojos", "Una Aventura de Altura"
         ]
       },
       canciones: {
         label: "Canciones",
         icon: "🎵",
         words: [
-          "Despacito", "Thriller", "La Macarena", "Bohemian Rhapsody", "Waka Waka", "Gasolina",
-          "Billie Jean", "La Bicicleta", "Vivir Mi Vida", "Gangnam Style", "Shape of You",
-          "El Taxi", "La Bamba", "Aserejé", "Danza Kuduro", "Bailando", "Tusa", "Bichota",
-          "Feliz Cumpleaños", "La Cucaracha", "Single Ladies", "Baby Shark", "YMCA",
-          "We Will Rock You", "Livin' la Vida Loca", "Sopa de Caracol", "El Meneaito",
-          "Pedro Navaja", "La Camisa Negra", "Rayando el Sol", "De Música Ligera", "Pepas"
+          "Despacito", "La Macarena", "Gasolina", "La Bicicleta", "Vivir Mi Vida", "El Taxi",
+          "La Bamba", "Aserejé", "Danza Kuduro", "Bailando", "Tusa", "Bichota", "Feliz Cumpleaños",
+          "La Cucaracha", "Sopa de Caracol", "El Meneaito", "Pedro Navaja", "La Camisa Negra",
+          "Rayando el Sol", "De Música Ligera", "Pepas", "La Gota Fría", "El Baile del Perrito",
+          "La Rebelión", "Cali Pachanguero", "El Preso", "A Dios le Pido", "Corazón Partío",
+          "Livin' la Vida Loca", "Suavemente", "Procura", "La Negra Tiene Tumbao", "Oye Cómo Va",
+          "Bésame Mucho", "Cielito Lindo", "El Rey", "Amor Eterno", "Querida", "La Incondicional",
+          "Persiana Americana", "Lamento Boliviano", "Flaca", "Mariposa Traicionera",
+          "Clavado en un Bar", "Color Esperanza", "Limón y Sal", "Me Gustas Tú",
+          "El Baile de los que Sobran", "La Pollera Colorá", "Colombia Tierra Querida"
         ]
       },
       profesiones: {
         label: "Profesiones",
         icon: "👷",
         words: [
-          "Bombero", "Astronauta", "Cirujano", "Chef", "Piloto de avión", "Dentista", "Policía",
+          "Bombero", "Astronauta", "Cirujano", "Cocinero", "Piloto de avión", "Dentista", "Policía",
           "Fotógrafo", "Carpintero", "Mago", "Veterinario", "Arquitecto", "Peluquero", "Mecánico",
           "Profesor", "Director de orquesta", "Juez", "Sastre", "Pintor", "Salvavidas",
           "Arqueólogo", "Periodista", "Electricista", "Panadero", "Payaso", "Científico",
-          "Agricultor", "Cartero", "Mesero", "DJ", "Buzo", "Árbitro de fútbol", "Cantante de ópera",
-          "Escultor", "Programador", "Entrenador personal"
+          "Agricultor", "Cartero", "Mesero", "Locutor de radio", "Buzo", "Árbitro de fútbol",
+          "Cantante de ópera", "Escultor", "Programador", "Entrenador personal", "Plomero",
+          "Albañil", "Enfermero", "Abogado", "Contador", "Bibliotecario", "Jardinero",
+          "Taxista", "Conductor de autobús", "Marinero", "Soldado", "Sacerdote", "Relojero",
+          "Zapatero"
         ]
       },
       animales: {
@@ -375,35 +388,47 @@
         icon: "🦁",
         words: [
           "Canguro", "Pingüino", "Elefante", "Jirafa", "Camaleón", "Pulpo", "Gorila", "Flamenco",
-          "Cocodrilo", "Murciélago", "Serpiente", "Avestruz", "Perezoso", "Delfín", "Tiburón",
+          "Cocodrilo", "Murciélago", "Serpiente", "Avestruz", "Oso perezoso", "Delfín", "Tiburón",
           "Abeja", "Araña", "Rana", "Pavo real", "Cangrejo", "Caballo", "Perro salchicha",
           "Gato", "Búho", "Castor", "Hipopótamo", "Rinoceronte", "Zorro", "Koala", "Tortuga",
-          "Mosquito", "Gallina", "Loro", "Medusa", "Escorpión", "Ballena"
+          "Mosquito", "Gallina", "Loro", "Medusa", "Escorpión", "Ballena", "Camello",
+          "Cebra", "León", "Tigre", "Oso polar", "Panda gigante", "Lobo", "Ardilla",
+          "Erizo", "Armadillo", "Tucán", "Pelícano", "Caballito de mar", "Estrella de mar"
         ]
       },
       superheroes: {
         label: "Personajes",
         icon: "🦸",
         words: [
-          "Superman", "Wonder Woman", "Iron Man", "Hulk", "Thor", "Capitán América", "Flash",
-          "Aquaman", "Wolverine", "Deadpool", "Darth Vader", "Goku", "Pikachu", "Mario Bros",
-          "El Chavo del 8", "Chapulín Colorado", "Sherlock Holmes", "Drácula", "Frankenstein",
-          "Tarzán", "Zorro", "Robin Hood", "Cleopatra", "Albert Einstein", "Michael Jackson",
-          "Freddie Mercury", "Charlie Chaplin", "Elvis Presley", "Frida Kahlo", "Bob Esponja",
-          "Homero Simpson", "Shrek", "Elsa de Frozen", "Jack Sparrow"
+          "Hombre Araña", "Mujer Maravilla", "Hombre de Hierro", "Capitán América", "Acuamán",
+          "El Chavo del Ocho", "El Chapulín Colorado", "Don Ramón", "Quico", "La Chilindrina",
+          "Conde Drácula", "Frankenstein", "Tarzán", "El Zorro", "Robin Hood", "Cleopatra",
+          "Albert Einstein", "Charles Chaplin", "Frida Kahlo", "Bob Esponja", "Patricio Estrella",
+          "Homero Simpson", "Bart Simpson", "El Gato con Botas", "Pinocho", "Caperucita Roja",
+          "El Lobo Feroz", "La Sirenita", "Cenicienta", "Blancanieves", "Aladdín", "Simba",
+          "Pedro Picapiedra", "Pablo Mármol", "Scooby-Doo", "Gokú", "Vegeta", "Pikachu",
+          "Don Quijote de la Mancha", "Sancho Panza", "Simón Bolívar", "Cristóbal Colón",
+          "Napoleón Bonaparte", "Julio César", "La Mona Lisa", "Papá Noel", "El Ratón Pérez",
+          "Hada Madrina", "Cantinflas", "Chespirito"
         ]
       },
       acciones: {
         label: "Acciones",
         icon: "🏃",
         words: [
-          "Cambiar un pañal", "Planchar ropa", "Sacarse una selfie", "Comer espagueti",
+          "Cambiar un pañal", "Planchar ropa", "Tomarse una autofoto", "Comer espagueti",
           "Manejar motocicleta", "Pescar un pez grande", "Hacer yoga", "Caminar en la luna",
           "Apagar un incendio", "Ordeñar una vaca", "Subir una montaña", "Hacer malabares",
-          "Pintarse las uñas", "Afeitarse", "Cambiar una llanta", "Hacer pizza", "Bañar un perro",
-          "Cortar cebolla llorando", "Caminar sobre hielo", "Tomar café caliente", "Inflar un globo",
-          "Tejer una bufanda", "Hacer paracaidismo", "Pisar popó", "Bailar salsa", "Hacer pesas",
-          "Tocar la batería", "Dormirse en clase", "Cazar mosquitos", "Subirse a una montaña rusa"
+          "Pintarse las uñas", "Afeitarse la barba", "Cambiar una llanta", "Amasar pizza",
+          "Bañar un perro", "Cortar cebolla llorando", "Caminar sobre hielo", "Tomar café caliente",
+          "Inflar un globo", "Tejer una bufanda", "Saltar en paracaídas", "Pisar excremento",
+          "Bailar salsa", "Levantar pesas", "Tocar la batería", "Dormirse en clase",
+          "Cazar mosquitos", "Subirse a una montaña rusa", "Cepillarse los dientes", "Lavarse el cabello",
+          "Tender la cama", "Barrer la casa", "Trapear el piso", "Lavar los platos",
+          "Colgar ropa en la cuerda", "Abrir un frasco apretado", "Enhebrar una aguja",
+          "Martillar un clavo", "Serruchar madera", "Pintar una pared", "Regar las plantas",
+          "Pasear a un perro bravo", "Hacer castillos de arena", "Remar en un bote",
+          "Esquiar en la nieve", "Hacer un muñeco de nieve", "Comer limón ácido", "Bostezar con sueño"
         ]
       },
       objetos: {
@@ -415,7 +440,9 @@
           "Martillo", "Taladro", "Cortacésped", "Silla de ruedas", "Patineta", "Brújula",
           "Reloj de arena", "Extintor", "Bumerán", "Resortera", "Binoculares", "Termómetro",
           "Estetoscopio", "Sartén", "Rodillo de cocina", "Plancha", "Lavadora", "Cámara fotográfica",
-          "Antifaz", "Alcancia", "Piñata"
+          "Antifaz", "Alcancía", "Piñata", "Abanico", "Almohada", "Ancla", "Anillo", "Antena",
+          "Arco y flecha", "Arpa", "Balanza", "Bandeja", "Batidora", "Biberón", "Bicicleta",
+          "Billetera", "Bombillo", "Botella", "Brújula", "Bufanda", "Caballete"
         ]
       },
       paises: {
@@ -426,7 +453,10 @@
           "Australia", "China", "India", "España", "Argentina", "Rusia", "Hawái", "Polo Norte",
           "Desierto del Sahara", "Selva Amazónica", "Torre Eiffel", "Estatua de la Libertad",
           "Muralla China", "Pirámides de Egipto", "Playa nudista", "Hospital", "Gimnasio",
-          "Cine", "Aeropuerto", "Supermercado", "Circo", "Zoológico", "Cementerio", "Biblioteca"
+          "Cine", "Aeropuerto", "Supermercado", "Circo", "Zoológico", "Cementerio", "Biblioteca",
+          "Perú", "Chile", "Venezuela", "Ecuador", "Panamá", "Costa Rica", "Cuba", "Puerto Rico",
+          "Alemania", "Inglaterra", "Canadá", "Grecia", "Suiza", "Machu Picchu", "Cataratas del Niágara",
+          "Parque de diversiones", "Estadio de fútbol", "Iglesia"
         ]
       }
     };
@@ -441,19 +471,18 @@
     };
 
     let gameState = {
-      teams: [], // { name, score }
+      teams: [],
       currentRound: 1,
       currentTeamIndex: 0,
       timeLeft: 60,
       turnScore: 0,
       timerInterval: null,
       wordPool: [],
-      usedWords: new Set(),
       currentWordObj: null,
       soundEnabled: true
     };
 
-    // ==================== AUDIO WEB API (EFECTOS DE SONIDO) ====================
+    // ==================== AUDIO (EFECTOS DE SONIDO) ====================
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
     function playTone(type) {
@@ -468,9 +497,9 @@
 
       if (type === 'point') {
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(523.25, now); // C5
-        osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
-        osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+        osc.frequency.setValueAtTime(523.25, now);
+        osc.frequency.setValueAtTime(659.25, now + 0.08);
+        osc.frequency.setValueAtTime(783.99, now + 0.16);
         gain.gain.setValueAtTime(0.25, now);
         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
         osc.start(now);
@@ -516,7 +545,7 @@
       document.getElementById('sound-label').textContent = gameState.soundEnabled ? 'Sonido' : 'Silencio';
     }
 
-    // ==================== INICIALIZACIÓN DE UI CONFIG ====================
+    // ==================== INICIALIZACIÓN DE INTERFAZ ====================
     function initSetupUI() {
       renderTeamInputs();
       renderCategories();
@@ -604,7 +633,7 @@
 
     function toggleCategory(key) {
       if (config.selectedCategories.includes(key)) {
-        if (config.selectedCategories.length === 1) return; // Al menos 1 categoría
+        if (config.selectedCategories.length === 1) return;
         config.selectedCategories = config.selectedCategories.filter(c => c !== key);
       } else {
         config.selectedCategories.push(key);
@@ -639,7 +668,6 @@
           pool.push({ word: w, category: cat.label, icon: cat.icon });
         });
       });
-      // Mezclar Fisher-Yates
       for (let i = pool.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [pool[i], pool[j]] = [pool[j], pool[i]];
@@ -655,7 +683,6 @@
     }
 
     function startGame() {
-      // Construir equipos con nombres personalizados limpios
       gameState.teams = [];
       for (let i = 0; i < config.teamCount; i++) {
         const rawName = (config.teamNames[i] || '').trim();
@@ -682,7 +709,6 @@
       document.getElementById('ready-team-name').textContent = currentTeam.name;
       document.getElementById('ready-rival-team').textContent = rivalTeam.name;
 
-      // Render mini marcador
       const sb = document.getElementById('ready-scoreboard');
       sb.innerHTML = gameState.teams.map((t, idx) => `
         <div class="px-3 py-1.5 rounded-xl text-xs font-bold border ${
@@ -749,7 +775,7 @@
       const badgeEl = document.getElementById('play-category-badge');
 
       wordEl.classList.remove('animate-pop');
-      void wordEl.offsetWidth; // trigger reflow
+      void wordEl.offsetWidth;
       wordEl.classList.add('animate-pop');
 
       badgeEl.textContent = `${item.icon} ${item.category}`;
@@ -757,7 +783,6 @@
     }
 
     // ==================== BOTONES DE ACCIÓN EN TURNO ====================
-    // 1. VERDE: Adivinan (+1 punto)
     function handleGuess() {
       playTone('point');
       gameState.turnScore++;
@@ -766,7 +791,6 @@
       displayNewWord();
     }
 
-    // 2. AMARILLO: Pasar (-20 segundos)
     function handleSkip() {
       playTone('skip');
       showPenaltyBadge('-20s');
@@ -780,7 +804,6 @@
       }
     }
 
-    // 3. ROJO: Incumplen normas (0 puntos, siguiente palabra)
     function handleFoul() {
       playTone('foul');
       showPenaltyBadge('¡FALTA!');
@@ -812,13 +835,11 @@
     function nextTurn() {
       gameState.currentTeamIndex++;
 
-      // Si ya jugaron todos los equipos en esta ronda
       if (gameState.currentTeamIndex >= gameState.teams.length) {
         gameState.currentTeamIndex = 0;
         gameState.currentRound++;
       }
 
-      // Verificar si se acabaron todas las rondas
       if (gameState.currentRound > config.rounds) {
         showGameOver();
       } else {
@@ -886,7 +907,6 @@
       showScreen('screen-setup');
     }
 
-    // Iniciar
     initSetupUI();
   </script>
 </body>
